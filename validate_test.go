@@ -1,4 +1,4 @@
-package gogroup
+package main
 
 import (
 	"strings"
