@@ -163,8 +163,7 @@ func main() {
 
 	flag.Usage = func() {
 		// Hard to get flag to format long usage well, so just put everything here.
-		fmt.Fprintln(os.Stderr,
-			`group-imports: Enforce import grouping in Go source files.
+		help := `group-imports: Enforce import grouping in Go source files.
 
 Exits with status 3 if import grouping is violated.
 
@@ -184,15 +183,13 @@ Usage: group-imports [OPTIONS] FILE...
 
       These groups can be specified in one comma-separated argument, or
       multiple arguments. Default: std,other
-`,
-		)
+`
+		fmt.Fprintln(os.Stderr, help)
 	}
 
 	flag.BoolVar(&rewrite, "rewrite", false, "")
 	flag.Var(gr, "order", "")
 	flag.BoolVar(&inplace, "inplace", true, "")
-
-
 
 	flag.Parse()
 	if flag.NArg() == 0 {
