@@ -121,7 +121,7 @@ func validateAll(proc *Processor, files []string) {
 	}
 }
 
-func rewriteOne(proc *Processor, file string) error {
+func rewriteOne(proc *Processor, file string, outputter Outputter) error {
 	// Get the rewritten file.
 	r, err := func() (io.Reader, error) {
 		f, err := os.Open(file)
@@ -137,23 +137,17 @@ func rewriteOne(proc *Processor, file string) error {
 
 	if r != nil {
 		// Write the result.
-		f, err := os.Create(file)
+		outputter.Write(file, r)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
-		_, err = io.Copy(f, r)
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(os.Stderr, "Fixed %s\n", file)
 	}
 	return nil
 }
 
-func rewriteAll(proc *Processor, files []string) {
+func rewriteAll(proc *Processor, files []string, outputter Outputter) {
 	for _, file := range files {
-		err := rewriteOne(proc, file)
+		err := rewriteOne(proc, file, outputter)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
 			os.Exit(statusError)
@@ -163,12 +157,12 @@ func rewriteAll(proc *Processor, files []string) {
 
 func main() {
 	rewrite := false
+	inplace := true
 	gr := newGrouper()
 
 	flag.Usage = func() {
 		// Hard to get flag to format long usage well, so just put everything here.
-		fmt.Fprintln(os.Stderr,
-			`group-imports: Enforce import grouping in Go source files.
+		help := `group-imports: Enforce import grouping in Go source files.
 
 Exits with status 3 if import grouping is violated.
 
@@ -188,12 +182,13 @@ Usage: group-imports [OPTIONS] FILE...
 
       These groups can be specified in one comma-separated argument, or
       multiple arguments. Default: std,other
-`,
-		)
+`
+		fmt.Fprintln(os.Stderr, help)
 	}
 
 	flag.BoolVar(&rewrite, "rewrite", false, "")
 	flag.Var(gr, "order", "")
+	flag.BoolVar(&inplace, "inplace", true, "")
 
 	flag.Parse()
 	if flag.NArg() == 0 {
@@ -204,7 +199,12 @@ Usage: group-imports [OPTIONS] FILE...
 
 	proc := NewProcessor(gr)
 	if rewrite {
-		rewriteAll(proc, flag.Args())
+		if inplace {
+			rewriteAll(proc, flag.Args(), InplaceOutputter{})
+		} else {
+			rewriteAll(proc, flag.Args(), STDOUTOutputter{})
+		}
+
 	} else {
 		validateAll(proc, flag.Args())
 	}

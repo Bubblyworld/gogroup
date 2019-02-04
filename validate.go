@@ -6,7 +6,7 @@ import (
 )
 
 func (e *ValidationError) Error() string {
-	return fmt.Sprintf("%s: %s (line %s)", e.Message, e.ImportPath, e.Line)
+	return fmt.Sprintf("%s: %s (line %d)", e.Message, e.ImportPath, e.Line)
 }
 
 // Yield a validation error.
