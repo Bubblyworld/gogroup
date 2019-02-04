@@ -12,13 +12,14 @@ type Outputter interface {
 type InplaceOutputter struct {
 }
 
-func (InplaceOutputter) Write(file string, r io.Reader) error{
+func (InplaceOutputter) Write(file string, r io.Reader) error {
 	f, err := os.Create(file)
 	if err != nil {
-		return  err
+		return err
 	}
 	defer f.Close()
 	_, err = io.Copy(f, r)
+	fmt.Printf("Fixed %s\n", file)
 	return err
 }
 

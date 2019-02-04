@@ -141,7 +141,6 @@ func rewriteOne(proc *Processor, file string, outputter Outputter) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(os.Stderr, "Fixed %s\n", file)
 	}
 	return nil
 }
