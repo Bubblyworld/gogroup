@@ -6,10 +6,11 @@ import (
 	"io"
 	"os"
 	"regexp"
-	"strings"
-
 	"strconv"
+	"strings"
 )
+
+const version = "0.0.1"
 
 type grouper struct {
 	// The group numbers of prefixed packages.
@@ -163,6 +164,7 @@ func rewriteAll(proc *Processor, files []string) {
 
 func main() {
 	rewrite := false
+	printVersion := false
 	gr := newGrouper()
 
 	flag.Usage = func() {
@@ -192,10 +194,15 @@ Usage: group-imports [OPTIONS] FILE...
 		)
 	}
 
+	flag.BoolVar(&printVersion, "version", false, "")
 	flag.BoolVar(&rewrite, "rewrite", false, "")
 	flag.Var(gr, "order", "")
 
 	flag.Parse()
+	if printVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 	if flag.NArg() == 0 {
 		fmt.Fprintln(os.Stderr, "No file provided.")
 		flag.Usage()
